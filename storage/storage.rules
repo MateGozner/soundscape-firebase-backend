@@ -1,0 +1,75 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isValidAudio() {
+      return request.resource.contentType in ['audio/mpeg', 'audio/wav', 'audio/m4a', 'audio/mp4']
+        && request.resource.size < 10 * 1024 * 1024; // 10MB max
+    }
+    
+    function isValidImage() {
+      return request.resource.contentType in ['image/jpeg', 'image/png', 'image/webp']
+        && request.resource.size < 5 * 1024 * 1024; // 5MB max
+    }
+    
+    // ========== Recordings Bucket ==========
+    match /recordings/{userId}/{allPaths=**} {
+      // Only owner can upload
+      allow create: if isOwner(userId) && isValidAudio();
+      
+      // Anyone can read public recordings
+      allow read: if isAuthenticated();
+      
+      // Only owner can delete
+      allow delete: if isOwner(userId);
+    }
+    
+    // ========== Profile Images Bucket ==========
+    match /profiles/{userId}/{allPaths=**} {
+      // Only owner can upload profile images
+      allow create: if isOwner(userId) && isValidImage();
+      
+      // Anyone can read profile images
+      allow read: if isAuthenticated();
+      
+      // Only owner can update
+      allow update: if isOwner(userId) && isValidImage();
+      
+      // Only owner can delete
+      allow delete: if isOwner(userId);
+    }
+    
+    // ========== Thumbnails Bucket ==========
+    match /thumbnails/{recordingId}/{allPaths=**} {
+      // Only authenticated users can read
+      allow read: if isAuthenticated();
+      
+      // Only cloud functions can write/delete
+      allow write: if false;
+      allow delete: if false;
+    }
+    
+    // ========== Temporary Uploads ==========
+    match /temp/{userId}/{allPaths=**} {
+      // Users can upload to their temp folder
+      allow create: if isOwner(userId);
+      
+      // Only owner can read and delete
+      allow read, delete: if isOwner(userId);
+    }
+    
+    // Deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
