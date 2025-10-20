@@ -435,12 +435,6 @@ Configure alerts in Firebase Console:
 
 MIT License - See LICENSE file
 
-## 👥 Team
-
-- **Fischer Mátyás** - Project Lead
-- **Fonódi Zsolt** - Backend Lead
-- **Gozner Máté** - Developer
-
 ## 📞 Support
 
 For issues and questions:
