@@ -82,9 +82,12 @@ service cloud.firestore {
     }
     
     // ========== Activities Collection ==========
+    // Note: Activities are created client-side in Spark plan (no Cloud Functions)
     match /activities/{activityId} {
       allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
-      allow write: if false; // Only Cloud Functions can write
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if isOwner(resource.data.userId);
     }
     
     // ========== Follows Collection ==========
