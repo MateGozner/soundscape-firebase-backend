@@ -5,7 +5,7 @@
   },
   "storage": [
     {
-      "bucket": "soundscape-dev.appspot.com",
+      "bucket": "soundscape-bba23.firebasestorage.app",
       "rules": "storage/storage.rules"
     }
   ]

@@ -37,7 +37,7 @@ service firebase.storage {
     match /profiles/{userId}/{allPaths=**} {
       // Only owner can upload profile images
       allow create: if isOwner(userId) && isValidImage();
-      
+
       // Anyone can read profile images
       allow read: if isAuthenticated();
       
