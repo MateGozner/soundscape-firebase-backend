@@ -34,7 +34,7 @@ service cloud.firestore {
 
     // ========== Recordings Collection ==========
     match /recordings/{recordingId} {
-      allow read: if resource.data.isPublic == true || (isAuthenticated() && request.auth.uid == resource.data.userId);
+      allow read: if resource.data.isPublic == true || isAuthenticated();
       allow create: if isAuthenticated() && isValidRecording() && request.resource.data.userId == request.auth.uid;
       allow update: if isOwner(resource.data.userId) && isValidRecording();
       allow delete: if isOwner(resource.data.userId);
