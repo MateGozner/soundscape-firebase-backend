@@ -36,7 +36,10 @@ service cloud.firestore {
     match /recordings/{recordingId} {
       allow read: if resource.data.isPublic == true || (isAuthenticated() && request.auth.uid == resource.data.userId);
       allow create: if isAuthenticated() && isValidRecording() && request.resource.data.userId == request.auth.uid;
-      allow update: if isOwner(resource.data.userId) && isValidRecording();
+      allow update: if isAuthenticated() && (
+        (isOwner(resource.data.userId) && isValidRecording()) ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount', 'likeCount'])
+      );
       allow delete: if isOwner(resource.data.userId);
       
       // Sub-collection: Comments
